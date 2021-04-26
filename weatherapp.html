@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <style type="text/css">
+       body {background-image: url(pic3.jpeg); background-color: black; background-size: cover; background-repeat: no-repeat, repeat;}
+        head, body { text-align: center; color: papayawhip; font-size: 40px; }
+        h2 { text-align: center;}
+        #B { font-size: 20px;  margin: 20px; background: #ffffff; opacity: 0.6; font-weight: bold; color: #0000ff; }
+
+        .spinner {
+          border: 18px solid yellow; /* white */
+          border-top: 20px solid black; /* Blue */
+          border-radius: 550%;
+          width: 50px;
+          height: 50px;
+          animation: spin 2s linear infinite;
+          position: fixed;
+          left: 60%;
+          margin-left: -2em;
+          margin-top: 2em;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+    </style>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+
+            <script type = "text/javascript"> 
+
+            function localDate(epochTime) {
+                 let date = new Date(epochTime*1000);
+                 return date;
+            }
+         $(document).ready( function(){
+
+           $("button").click(function(){ 
+
+             var zip = $("#zip").val();
+
+             var pattern = /^\d{5}$/;
+
+    $('#zip').blur(function() {
+        if (!$('#zip').val().match(pattern))  {
+            alert('Please check zipcode.');
+        }
+    });
+        
+               if(zip != ''){
+                   
+                 $.ajax({
+                     type: 		"GET",
+                     url: 		"weatherapp.php",
+                     data: 		"zip="+zip,
+
+
+                     beforeSend: function(){ 		
+                                      $("#B").html("<div class=\"spinner\"></div>" );                },
+
+                     error: function(xhr, status, error) { alert( "Error Mesaage:  \r\nNumeric code is: "  + xhr.status + " \r\nError is " + error);   },
+
+                     success: 	function(result){
+
+                        r = JSON.parse(result);
+
+                        sunrise = new Date(r.sys.sunrise*1000);
+                        sunset = new Date(r.sys.sunset*1000);
+                        today = new Date();   
+
+                        srTime = sunrise.toLocaleString();
+                        ssTime = sunset.toLocaleString();
+                        currDate = sunrise.toLocaleDateString();
+                        currtime = today.toLocaleString();
+
+                        res =  "<br>City: "			  + r.name+  " "				  +		
+                            "<br>Coordinate: "   + r.coord.lon + ", " + r.coord.lat+" "		+
+                               "<br>Temperature: " 	  + Math.round(((r.main.temp)*(9/5) +32),2) + "&degF"		  +
+                               "<br><img src ='http://openweathermap.org/img/w/"+r.weather[0].icon+".png'>" +
+                               "<br>Weather: " 		  + r.weather[0].main + " " +
+                               "<br>Description: " + r.weather[0].description +
+                               "<br>Humidity: "   + r.main.humidity + " %" +
+                               "<br>Wind Speed: " + r.wind.speed+  " mph " +
+                               "<br>Sunrise/epoch: " + (srTime) + " "  +
+                              "<br>Currently: "  + currtime + " " + 
+                               "<br>Sunset: "  + ssTime  + " " + 
+
+                               "<br>";
+
+                        $("#B").html(res);
+                    }	
+                });	     
+             };		
+               
+          });			   
+        });				
+
+        </script>
+    </head>
+    <body>
+        <div><font color= "yellow"/>
+        <h2>  Weather App</h2>   
+        <input 	id = "zip" type = "number" name = "zip" placeholder="Zipcode" autocomplete="off" min="0" required>
+        <button id = "btn" type = "BUTTON"><b>REQUEST WEATHER</b></button>
+        <div  id= "B"></div>
+        </div></body>
+
+
+</html>
